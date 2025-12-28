@@ -1,0 +1,93 @@
+import java.io.*;
+import java.util.*;
+
+public class StudentService {
+
+    private List<Student> students = new ArrayList<>();
+    private final String FILE_PATH = "../data/students.txt";
+
+    public StudentService() {
+        loadFromFile();
+    }
+
+    public void addStudent(Student student) {
+        students.add(student);
+        saveToFile();
+        System.out.println("Student added successfully.");
+    }
+
+    public void viewStudents() {
+        if (students.isEmpty()) {
+            System.out.println("No students found.");
+            return;
+        }
+        for (Student s : students) {
+            System.out.println(s);
+        }
+    }
+
+    public void searchStudent(int id) {
+        for (Student s : students) {
+            if (s.getId() == id) {
+                System.out.println(s);
+                return;
+            }
+        }
+        System.out.println("Student not found.");
+    }
+
+    public void updateStudent(int id, Scanner sc) {
+        for (Student s : students) {
+            if (s.getId() == id) {
+                System.out.print("Enter new name: ");
+                s.setName(sc.next());
+                System.out.print("Enter new age: ");
+                s.setAge(sc.nextInt());
+                System.out.print("Enter new course: ");
+                s.setCourse(sc.next());
+                saveToFile();
+                System.out.println("Student updated.");
+                return;
+            }
+        }
+        System.out.println("Student not found.");
+    }
+
+    public void deleteStudent(int id) {
+        Iterator<Student> it = students.iterator();
+        while (it.hasNext()) {
+            if (it.next().getId() == id) {
+                it.remove();
+                saveToFile();
+                System.out.println("Student deleted.");
+                return;
+            }
+        }
+        System.out.println("Student not found.");
+    }
+
+    private void saveToFile() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (Student s : students) {
+                bw.write(s.toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving data.");
+        }
+    }
+
+    private void loadFromFile() {
+        File file = new File(FILE_PATH);
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                students.add(Student.fromString(line));
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading data.");
+        }
+    }
+}
